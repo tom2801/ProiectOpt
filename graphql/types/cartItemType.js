@@ -5,19 +5,19 @@ const {
 } = require('graphql');
 
 
-const productType = new GraphQLObjectType({
-    name: 'Product',
+const cartItemType = new GraphQLObjectType({
+    name: 'CartItem',
     fields: {
         id: {
             type: GraphQLID,
         },
-        productName: {
+        productId: {
             type: GraphQLString,
         },
-        price: {
+        quantity: {
             type: GraphQLString,
         }
     }
 });
 
-module.exports = productType;
+module.exports = cartItemType;
