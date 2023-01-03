@@ -2,6 +2,7 @@ const {
     GraphQLObjectType,
     GraphQLID,
     GraphQLString,
+    graphql,
 } = require('graphql');
 
 
@@ -13,6 +14,9 @@ const cartItemType = new GraphQLObjectType({
         },
         productId: {
             type: GraphQLString,
+        },
+        productName: {
+            type: GraphQLString
         },
         quantity: {
             type: GraphQLString,

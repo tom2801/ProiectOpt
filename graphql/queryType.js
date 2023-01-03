@@ -8,8 +8,10 @@ const {
 
 const models = require('../models');
 const jwt = require('jsonwebtoken');
+
 const userType = require('./types/userType');
 const productType = require('./types/productType');
+const cartItemType= require('./types/cartItemType');
 
 const JWT_KEY = '1158659639IFIUHSDIUSDF';
 
@@ -35,9 +37,37 @@ const queryType = new GraphQLObjectType({
           return models.User.findByPk(payload.id)
         }
 
+      },
+      cart:{
+        type: new GraphQLList(cartItemType),
+        resolve :async (root, args, context, info)=>{
+
+           
+            const  payload=jwt.verify(context,JWT_KEY)
+            const currentUser=await models.User.findByPk(payload.id)
+            const lista= await currentUser.getCartItems();
+  
+            produse=[]
+            for (let i=0 ;i<lista.length;i++){
+              const aux = await lista[i].getProduct()
+              produse.push({
+                id:lista[i].id,
+                productId:aux.id,
+                productName: aux.productName,
+                quantity: lista[i].quantity
+              })
+            }
+             
+            return produse
+         
+  
+        }
       }
-    }}
-    );
+    }
+  }
+
+    
+);
 
 
 module.exports= queryType;    
