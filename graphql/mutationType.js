@@ -26,7 +26,40 @@ const mutationType = new GraphQLObjectType({
             resolve: async (root,args,context,info)=>{
                 const payload=jwt.verify(context,JWT_KEY)
                 const currentUser=await models.User.findByPk(payload.id)
-                // de inserat aici
+                const lista=await currentUser.getCartItems();
+
+                let produse=[]
+                for (let i=0 ;i<lista.length;i++){
+                const aux = await lista[i].getProduct()
+                console.log('here');
+                produse.push({
+                    id:lista[i].id,
+                    productId:aux.id,
+                    productName: aux.productName,
+                    quantity: lista[i].quantity,
+                    price:parseInt(aux.price)*lista[i].quantity
+                })
+                }
+
+                let total=0;
+                let content=''
+                console.log(produse.length);
+                for (let i=0;i<produse.length;i++){
+                    total=total+produse[i].price
+                    content=content+produse[i].productName+'*'+produse[i].quantity+' '
+                }
+                
+                await currentUser.update({
+                    wallet:currentUser.wallet-total
+                })
+
+                const rez=await models.Order.create({
+                    content:content,
+                    price:total
+                })
+
+                return rez
+
             }
         },
         addFunds:{
@@ -40,7 +73,7 @@ const mutationType = new GraphQLObjectType({
                 const payload=jwt.verify(context,JWT_KEY)
                 const currentUser=await models.User.findByPk(payload.id)
                 await currentUser.update({
-                    wallet:currentUser.wallet+funds
+                    wallet:currentUser.wallet+args.funds
                 })
                 return currentUser
             }
@@ -76,7 +109,7 @@ const mutationType = new GraphQLObjectType({
                         productId:prev[0].productId,
                         productName:produsAsociat.productName,
                         quantity:prev[0].quantity,
-                        price:prev[0].price+produsAsociat.price
+                        price:parseInt(prev[0].quantity)*parseInt(produsAsociat.price)
                     }
                 }
 

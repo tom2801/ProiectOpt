@@ -2,6 +2,7 @@ const {
     GraphQLObjectType,
     GraphQLID,
     GraphQLString,
+    GraphQLInt,
 } = require('graphql');
 
 
@@ -16,6 +17,9 @@ const userType = new GraphQLObjectType({
         },
         password: {
             type: GraphQLString,
+        },
+        wallet:{
+            type: GraphQLInt
         }
     }
 });

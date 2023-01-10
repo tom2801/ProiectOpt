@@ -47,14 +47,16 @@ const queryType = new GraphQLObjectType({
             const currentUser=await models.User.findByPk(payload.id)
             const lista= await currentUser.getCartItems();
   
-            produse=[]
+            let produse=[]
             for (let i=0 ;i<lista.length;i++){
               const aux = await lista[i].getProduct()
+              console.log('here');
               produse.push({
                 id:lista[i].id,
                 productId:aux.id,
                 productName: aux.productName,
-                quantity: lista[i].quantity
+                quantity: lista[i].quantity,
+                price:parseInt(aux.price)*lista[i].quantity
               })
             }
              
