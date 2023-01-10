@@ -13,12 +13,38 @@ const jwt = require('jsonwebtoken');
 
 const userSessionType = require('./types/userSessionType');
 const cartItemType = require('./types/cartItemType');
+const userType = require('./types/userType');
+const orderType = require('./types/orderType')
 
 const JWT_KEY = '1158659639IFIUHSDIUSDF';
 
 const mutationType = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
+        checkout:{
+            type:orderType,
+            resolve: async (root,args,context,info)=>{
+                const payload=jwt.verify(context,JWT_KEY)
+                const currentUser=await models.User.findByPk(payload.id)
+                // de inserat aici
+            }
+        },
+        addFunds:{
+            type: userType,
+            args:{
+                funds:{
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
+            },
+            resolve: async(root,args,context,info)=>{  // de dat undo la migrgations ca sa pun wallet in schema
+                const payload=jwt.verify(context,JWT_KEY)
+                const currentUser=await models.User.findByPk(payload.id)
+                await currentUser.update({
+                    wallet:currentUser.wallet+funds
+                })
+                return currentUser
+            }
+        },
         addToCart:{
             type: cartItemType,
             args:{
@@ -49,7 +75,8 @@ const mutationType = new GraphQLObjectType({
                         id:prev[0].id,
                         productId:prev[0].productId,
                         productName:produsAsociat.productName,
-                        quantity:prev[0].quantity
+                        quantity:prev[0].quantity,
+                        price:prev[0].price+produsAsociat.price
                     }
                 }
 
@@ -68,7 +95,8 @@ const mutationType = new GraphQLObjectType({
                     id:insertie.id,
                     productId:obiect.dataValues.id,
                     productName:obiect.dataValues.productName,
-                    quantity:insertie.quantity
+                    quantity:insertie.quantity,
+                    price:obiect.price
                 };
             }
         },
