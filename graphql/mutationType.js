@@ -49,6 +49,10 @@ const mutationType = new GraphQLObjectType({
                     content=content+produse[i].productName+'*'+produse[i].quantity+' '
                 }
                 
+                if(currentUser.wallet-total<0){
+                    return
+                }
+
                 await currentUser.update({
                     wallet:currentUser.wallet-total
                 })
@@ -56,6 +60,12 @@ const mutationType = new GraphQLObjectType({
                 const rez=await models.Order.create({
                     content:content,
                     price:total
+                })
+
+                await models.CartItem.destroy({
+                    where:{
+                        userId:payload.id
+                    }
                 })
 
                 return rez
